@@ -1,24 +1,70 @@
-import logo from './logo.svg';
 import './App.css';
+import app from './firebase.init';
+import { getAuth, GithubAuthProvider,  GoogleAuthProvider,  signInWithPopup, signOut } from "firebase/auth";
+import { useState } from 'react';
+
+const auth = getAuth(app);
+
 
 function App() {
+  const [user, setUser] = useState({})
+  
+const googleProvider = new GoogleAuthProvider();
+const githubprovider = new GithubAuthProvider();
+
+
+  const handleGoogleSign = () =>{
+    signInWithPopup(auth, googleProvider)
+    .then(result =>{
+      const user = result.user;
+      setUser(user)
+      console.log(user);
+    })
+    .catch(Error =>{
+      console.log(Error);
+    })
+  }
+
+
+  const handelGithubSignIn = () =>{
+    signInWithPopup(auth, githubprovider)
+    .then(result =>{
+      const user = result.user;
+      setUser(user);
+      console.log(user);
+     
+    })
+    .catch(Error =>{
+      console.log('error')
+    })
+  }
+
+const handelSignOut = () =>{
+  signOut(auth)
+  .then( () =>{
+    setUser({});
+  })
+  .catch(Error => {
+    setUser({});
+  })
+
+}
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      {
+        user.uid ? <button onClick={handelSignOut}>sign out</button>
+        :
+        <>
+           <button onClick={handleGoogleSign}>google sign in</button>   
+          <button onClick={handelGithubSignIn}>github sign in</button>    
+        </>
+      }
+
+    <h2>your name:{user.displayName}</h2>
+    <p>I know your email address: {user.email}</p>
+    <img src={user.photoURL} alt=""></img>
+   </div>
   );
 }
 
